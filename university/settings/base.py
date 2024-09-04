@@ -3,6 +3,7 @@ from pathlib import Path
 import dj_database_url
 from decouple import Csv, config
 
+
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 
@@ -23,6 +24,7 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "guardian",
     "university.apps.core",
     "university.apps.accounts",
 ]
@@ -78,7 +80,10 @@ TEMPLATES = [
 
 DATABASES = {
     "default": dj_database_url.config(
-        default=config("DATABASE_URL", default="sqlite:///" + BASE_DIR.child("db.sqlite3"), cast=dj_database_url),
+        default=config(
+            "DATABASE_URL",
+            default=f"sqlite:///{BASE_DIR.parent.parent}/db.sqlite3",
+        ),
         conn_max_age=600,
     )
 }
@@ -103,8 +108,12 @@ AUTH_PASSWORD_VALIDATORS = [
     },
 ]
 
-AUTH_USER_MODEL = "university.apps.accounts.User"
+AUTH_USER_MODEL = "accounts.User"
 
+AUTHENTICATION_BACKENDS = (
+    "django.contrib.auth.backends.ModelBackend",
+    "guardian.backends.ObjectPermissionBackend",
+)
 
 # ==============================================================================
 # STATIC FILES SETTINGS

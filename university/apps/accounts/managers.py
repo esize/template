@@ -8,8 +8,6 @@ class UserManager(BaseUserManager):
         """
         Creates and saves a User with the given email and password.
         """
-        if not email:
-            raise ValueError("The given email must be set")
         if not netid:
             raise ValueError("The given netid must be set")
         email = self.normalize_email(email)
@@ -22,10 +20,11 @@ class UserManager(BaseUserManager):
         extra_fields.setdefault("is_superuser", False)
         return self._create_user(netid, email, password, **extra_fields)
 
-    def create_superuser(self, netid, email, password, **extra_fields):
+    def create_superuser(self, netid, password, **extra_fields):
         extra_fields.setdefault("is_superuser", True)
+        extra_fields.setdefault("is_staff", True)
 
         if extra_fields.get("is_superuser") is not True:
             raise ValueError("Superuser must have is_superuser=True.")
 
-        return self._create_user(netid, email, password, **extra_fields)
+        return self._create_user(netid, None, password, **extra_fields)

@@ -4,18 +4,19 @@ from django.db import models
 from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
-from django.utils.translation import ugettext_lazy as _
 
 from .managers import UserManager
 
 
 class User(AbstractBaseUser, PermissionsMixin):
-    netid = models.CharField(_("netid"), max_length=30, unique=True)
-    email = models.EmailField(_("email address"), unique=True)
-    first_name = models.CharField(_("first name"), max_length=30, blank=True)
-    last_name = models.CharField(_("last name"), max_length=30, blank=True)
-    date_joined = models.DateTimeField(_("date joined"), auto_now_add=True)
-    is_active = models.BooleanField(_("active"), default=True)
+    netid = models.CharField("netid", max_length=30, unique=True)
+    email = models.EmailField("email address", blank=True, null=True)
+    first_name = models.CharField("first name", max_length=30, blank=True)
+    last_name = models.CharField("last name", max_length=30, blank=True)
+    date_joined = models.DateTimeField("date joined", auto_now_add=True)
+    is_active = models.BooleanField("active", default=True)
+    is_staff = models.BooleanField("staff status", default=False)
+    is_superuser = models.BooleanField("superuser status", default=False)
     avatar = models.ImageField(upload_to="avatars/", null=True, blank=True)
 
     objects = UserManager()
@@ -24,8 +25,8 @@ class User(AbstractBaseUser, PermissionsMixin):
     REQUIRED_FIELDS = []
 
     class Meta:
-        verbose_name = _("user")
-        verbose_name_plural = _("users")
+        verbose_name = "user"
+        verbose_name_plural = "users"
 
     def get_full_name(self):
         """
@@ -44,4 +45,5 @@ class User(AbstractBaseUser, PermissionsMixin):
         """
         Sends an email to this User.
         """
-        send_mail(subject, message, from_email, [self.email], **kwargs)
+        if self.email is not None:
+            send_mail(subject, message, from_email, [self.email], **kwargs)
