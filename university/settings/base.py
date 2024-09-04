@@ -78,7 +78,7 @@ TEMPLATES = [
 
 DATABASES = {
     "default": dj_database_url.config(
-        default=config("DATABASE_URL", default="postgres://simple:simple@localhost:5432/simple"),
+        default=config("DATABASE_URL", default="sqlite:///" + BASE_DIR.child("db.sqlite3"), cast=dj_database_url),
         conn_max_age=600,
     )
 }
@@ -102,6 +102,8 @@ AUTH_PASSWORD_VALIDATORS = [
         "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     },
 ]
+
+AUTH_USER_MODEL = "university.apps.accounts.User"
 
 
 # ==============================================================================
