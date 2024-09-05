@@ -59,8 +59,14 @@ jobs:
           done
       - name: Remove formatted-code directory
         run: rm -rf formatted-code
+      - name: Check for changes
+        id: git-check
+        run: |
+          git add .
+          git diff --staged --exit-code || echo "changes=true" >> $GITHUB_OUTPUT
       - name: Create Pull Request
         id: create-pr
+        if: steps.git-check.outputs.changes == 'true'
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
