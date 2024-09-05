@@ -1,3 +1,4 @@
+import os
 from pathlib import Path
 
 import dj_database_url
@@ -36,7 +37,7 @@ DEFAULT_AUTO_FIELD = "django.db.models.BigAutoField"
 
 ROOT_URLCONF = "university.urls"
 
-INTERNAL_IPS = ["127.0.0.1"]
+INTERNAL_IPS = ["127.0.0.1", "localhost", "0.0.0.0"]
 
 WSGI_APPLICATION = "university.wsgi.application"
 
@@ -128,9 +129,10 @@ AUDITLOG_INCLUDE_ALL_MODELS = True
 
 STATIC_URL = "/static/"
 
-STATIC_ROOT = BASE_DIR.parent.parent / "static"
-
-STATICFILES_DIRS = [BASE_DIR / "static"]
+STATIC_ROOT = os.path.join(BASE_DIR.parent.parent, "staticfiles")
+STATICFILES_DIRS = [
+    os.path.join(BASE_DIR, "static"),
+]
 
 STATICFILES_FINDERS = (
     "django.contrib.staticfiles.finders.FileSystemFinder",

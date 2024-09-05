@@ -22,6 +22,7 @@ SECURE_CONTENT_TYPE_NOSNIFF = True
 SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
 
 SESSION_COOKIE_SECURE = True
+SECURE_HSTS_PRELOAD = True
 
 
 # ==============================================================================
