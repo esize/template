@@ -35,7 +35,6 @@ jobs:
         with:
           name: formatted-code-${{ matrix.tool }}
           path: university
-          if-no-files-found: error
 
   combine-and-create-pr:
     name: Combine Formatting Changes and Create PR
@@ -50,12 +49,10 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: formatted-code
-          pattern: formatted-code-*
-          merge-multiple: false
       - name: Combine changes
         run: |
           for dir in formatted-code/formatted-code-*; do
-            rsync -av "$dir/" university/
+            cp -R "$dir"/* ./
           done
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
