@@ -58,6 +58,7 @@ jobs:
           for dir in formatted-code/formatted-code-*; do
             cp -R "$dir"/* university/
           done
+          rm -rf formatted-code
       - name: Commit changes
         id: commit-changes
         run: |
