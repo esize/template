@@ -1,3 +1,5 @@
+name: Django Format, Lint, and Check
+
 on:
   push:
     branches: [main, master]
@@ -12,9 +14,9 @@ jobs:
       matrix:
         tool: [black, isort, djlint]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - name: Install ${{ matrix.tool }}
@@ -29,7 +31,7 @@ jobs:
             djlint --reformat university
           fi
       - name: Upload formatted code
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: formatted-code-${{ matrix.tool }}
           path: university
@@ -39,14 +41,16 @@ jobs:
     needs: format
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Download all artifacts
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
+        with:
+          path: formatted-code
+          pattern: formatted-code-*
+          merge-multiple: true
       - name: Combine changes
         run: |
-          for dir in formatted-code-*; do
-            cp -R $dir/university/* university/
-          done
+          cp -R formatted-code/* university/
       - name: Commit changes
         run: |
           git config --local user.email "action@github.com"
@@ -62,9 +66,9 @@ jobs:
       matrix:
         tool: [flake8, black, djlint, isort]
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: "3.x"
       - name: Install dependencies
@@ -80,6 +84,7 @@ jobs:
     runs-on: ubuntu-latest
     if: success()
     steps:
+      - uses: actions/checkout@v4
       - name: Check for changes
         run: |
           git fetch origin
