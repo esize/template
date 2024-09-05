@@ -1,8 +1,11 @@
 from django.contrib import admin
 
-from university.apps.accounts.models import User
+from .models import User
+from import_export.admin import ImportExportModelAdmin
 
 
-@admin.register(User)
-class UserAdmin(admin.ModelAdmin):
+class UserAdmin(ImportExportModelAdmin):
     pass
+
+
+admin.site.register(User, UserAdmin)

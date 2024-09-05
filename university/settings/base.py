@@ -25,6 +25,9 @@ INSTALLED_APPS = [
     "django.contrib.messages",
     "django.contrib.staticfiles",
     "guardian",
+    "widget_tweaks",
+    "auditlog",
+    "import_export",
     "university.apps.core",
     "university.apps.accounts",
 ]
@@ -50,6 +53,7 @@ MIDDLEWARE = [
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
+    "auditlog.middleware.AuditlogMiddleware",
 ]
 
 
@@ -114,6 +118,9 @@ AUTHENTICATION_BACKENDS = (
     "django.contrib.auth.backends.ModelBackend",
     "guardian.backends.ObjectPermissionBackend",
 )
+GUARDIAN_MONKEY_PATCH = False
+
+AUDITLOG_INCLUDE_ALL_MODELS = True
 
 # ==============================================================================
 # STATIC FILES SETTINGS

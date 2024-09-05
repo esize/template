@@ -5,11 +5,13 @@ from django.core.mail import send_mail
 from django.contrib.auth.models import PermissionsMixin
 from django.contrib.auth.base_user import AbstractBaseUser
 
+from guardian.mixins import GuardianUserMixin
+
 from .managers import UserManager
 
 
-class User(AbstractBaseUser, PermissionsMixin):
-    netid = models.CharField("netid", max_length=30, unique=True)
+class User(AbstractBaseUser, GuardianUserMixin, PermissionsMixin):
+    netid = models.CharField("net id", max_length=30, unique=True)
     email = models.EmailField("email address", blank=True, null=True)
     first_name = models.CharField("first name", max_length=30, blank=True)
     last_name = models.CharField("last name", max_length=30, blank=True)
@@ -27,6 +29,9 @@ class User(AbstractBaseUser, PermissionsMixin):
     class Meta:
         verbose_name = "user"
         verbose_name_plural = "users"
+
+    def __str__(self):
+        return self.netid
 
     def get_full_name(self):
         """
