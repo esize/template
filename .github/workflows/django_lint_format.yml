@@ -43,6 +43,9 @@ jobs:
     permissions:
       contents: write
       pull-requests: write
+    outputs:
+      pr_created: ${{ steps.create-pr.outputs.pull-request-created }}
+      pr_url: ${{ steps.create-pr.outputs.pull-request-url }}
     steps:
       - uses: actions/checkout@v4
       - name: Download all artifacts
@@ -57,6 +60,7 @@ jobs:
       - name: Remove formatted-code directory
         run: rm -rf formatted-code
       - name: Create Pull Request
+        id: create-pr
         uses: peter-evans/create-pull-request@v7
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
@@ -67,10 +71,21 @@ jobs:
           base: ${{ github.head_ref || github.ref_name }}
           delete-branch: true
 
+  notify:
+    name: Notify about changes
+    needs: combine-and-create-pr
+    runs-on: ubuntu-latest
+    if: needs.combine-and-create-pr.outputs.pr_created == 'true'
+    steps:
+      - name: Notify about changes
+        run: |
+          echo "Formatting changes were made. A pull request has been created at ${{ needs.combine-and-create-pr.outputs.pr_url }}"
+
   lint:
     name: Lint and Check
     needs: combine-and-create-pr
     runs-on: ubuntu-latest
+    if: needs.combine-and-create-pr.outputs.pr_created != 'true'
     strategy:
       matrix:
         tool: [flake8, black, djlint, isort]
@@ -86,24 +101,3 @@ jobs:
           pip install tox
       - name: Run ${{ matrix.tool }}
         run: tox -e ${{ matrix.tool }}
-
-  notify:
-    name: Notify about changes
-    needs: [combine-and-create-pr, lint]
-    runs-on: ubuntu-latest
-    if: success()
-    steps:
-      - name: Check for PR
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-        run: |
-          pr_url=$(gh pr list --head auto-format-${{ github.sha }} --json url --jq '.[0].url')
-          if [ -n "$pr_url" ]; then
-            echo "changes=true" >> $GITHUB_OUTPUT
-            echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
-          fi
-        id: pr-check
-      - name: Notify about changes
-        if: steps.pr-check.outputs.changes == 'true'
-        run: |
-          echo "Formatting changes were made. A pull request has been created at ${{ steps.pr-check.outputs.pr_url }}"
