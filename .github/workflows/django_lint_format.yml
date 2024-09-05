@@ -36,10 +36,13 @@ jobs:
           name: formatted-code-${{ matrix.tool }}
           path: university
 
-  combine-and-commit:
-    name: Combine Formatting Changes and Commit
+  combine-and-create-pr:
+    name: Combine Formatting Changes and Create PR
     needs: format
     runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
     steps:
       - uses: actions/checkout@v4
       - name: Download all artifacts
@@ -51,16 +54,19 @@ jobs:
       - name: Combine changes
         run: |
           cp -R formatted-code/* university/
-      - name: Commit changes
-        run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-          git add -A
-          git diff-index --quiet HEAD || (git commit -m "Apply automatic formatting" && git push)
+      - name: Create Pull Request
+        uses: peter-evans/create-pull-request@v5
+        with:
+          token: ${{ secrets.GITHUB_TOKEN }}
+          commit-message: Apply automatic formatting
+          title: "Auto-formatting changes"
+          body: "This PR applies automatic formatting changes."
+          branch: auto-format-${{ github.sha }}
+          base: ${{ github.head_ref || github.ref_name }}
 
   lint:
     name: Lint and Check
-    needs: combine-and-commit
+    needs: combine-and-create-pr
     runs-on: ubuntu-latest
     strategy:
       matrix:
@@ -80,17 +86,19 @@ jobs:
 
   notify:
     name: Notify about changes
-    needs: [combine-and-commit, lint]
+    needs: [combine-and-create-pr, lint]
     runs-on: ubuntu-latest
     if: success()
     steps:
-      - uses: actions/checkout@v4
-      - name: Check for changes
+      - name: Check for PR
         run: |
-          git fetch origin
-          git diff --quiet origin/${{ github.ref_name }} || echo "changes=true" >> $GITHUB_OUTPUT
-        id: git-check
+          pr_url="${{ steps.create-pr.outputs.pull-request-url }}"
+          if [ -n "$pr_url" ]; then
+            echo "changes=true" >> $GITHUB_OUTPUT
+            echo "pr_url=$pr_url" >> $GITHUB_OUTPUT
+          fi
+        id: pr-check
       - name: Notify about changes
-        if: steps.git-check.outputs.changes == 'true'
+        if: steps.pr-check.outputs.changes == 'true'
         run: |
-          echo "Formatting changes were made. Please pull the latest changes."
+          echo "Formatting changes were made. A pull request has been created at ${{ steps.pr-check.outputs.pr_url }}"
