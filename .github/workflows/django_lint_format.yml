@@ -52,7 +52,7 @@ jobs:
       - name: Combine changes
         run: |
           for dir in formatted-code/formatted-code-*; do
-            cp -R "$dir"/* ./
+            cp -R "$dir"/* university/
           done
       - name: Create Pull Request
         uses: peter-evans/create-pull-request@v7
