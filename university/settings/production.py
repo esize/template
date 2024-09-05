@@ -4,8 +4,8 @@ import sentry_sdk
 from sentry_sdk.integrations.django import DjangoIntegration
 
 import university
-from .base import *
 
+from .base import *
 
 # ==============================================================================
 # SECURITY SETTINGS
