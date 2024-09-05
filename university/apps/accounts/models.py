@@ -2,10 +2,10 @@ from __future__ import unicode_literals
 
 from django.contrib.auth.base_user import AbstractBaseUser
 from django.contrib.auth.models import PermissionsMixin
-from guardian.mixins import GuardianUserMixin
 from django.core.mail import send_mail
 from django.db import models
 
+from guardian.mixins import GuardianUserMixin
 
 from .managers import UserManager
 
